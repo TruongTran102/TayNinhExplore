@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDL Long Điền Sơn - Khám Phá Tây Ninh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body, html { 
+            margin: 0; padding: 0; 
+            font-family: 'Montserrat', sans-serif; 
+            background-color: #f8f9fa; 
+            color: #333;
+        }
+
+        /* Nút quay lại Bản đồ - Đã ghim cố định */
+        .back-nav {
+            position: fixed; top: 20px; left: 20px; z-index: 1000;
+        }
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(0, 0, 0, 0.4); color: #fff;
+            padding: 8px 16px; border-radius: 30px;
+            text-decoration: none; font-weight: 600; font-size: 13px;
+            backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-back:hover { background: #16a085; border-color: #16a085; }
+
+        /* THANH CÔNG CỤ TRÔI - GÓC TRÊN BÊN PHẢI */
+        .floating-action-menu {
+            position: fixed;
+            top: 20px; right: 20px;
+            display: flex; flex-direction: row; gap: 10px;
+            z-index: 1000;
+        }
+        .float-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            background: rgba(0, 0, 0, 0.4); /* Nền đen trong suốt mờ */
+            color: #fff;
+            padding: 8px 16px; border-radius: 30px;
+            font-family: inherit; font-size: 13px; font-weight: 600;
+            text-decoration: none; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;
+            backdrop-filter: blur(8px); /* Hiệu ứng kính mờ */
+            transition: all 0.3s ease;
+        }
+        .float-btn svg { width: 16px; height: 16px; flex-shrink: 0; fill: currentColor; }
+        .float-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+        /* Tinh chỉnh màu Hover cho từng nút */
+        .btn-action-add:hover { background: #e67e22; border-color: #e67e22; }
+        .btn-action-add.added { background: #27ae60; border-color: #27ae60; color: #fff; }
+        .btn-action-add.added:hover { background: #219a52; }
+        
+        .btn-action-view:hover { background: #8e44ad; border-color: #8e44ad; }
+        .btn-action-dir:hover { background: #2980b9; border-color: #2980b9; }
+
+        /* Banner hình ảnh (Hero Section) */
+        .hero-section {
+            position: relative; width: 100%; height: 50vh;
+            background-image: url('TayninhImage/longdienson.png');
+            background-size: cover; background-position: center;
+        }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%);
+        }
+        .hero-content {
+            position: absolute; bottom: 40px; left: 10%; width: 80%;
+            color: #fff;
+        }
+        .zone-badge {
+            display: inline-block; background: #16a085; color: #fff;
+            padding: 5px 15px; border-radius: 20px; font-size: 12px;
+            font-weight: 700; text-transform: uppercase; margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        .hero-title { font-size: 42px; margin: 0; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+
+        /* Nội dung chi tiết */
+        .content-section {
+            max-width: 900px; margin: -40px auto 50px auto;
+            background: #fff; padding: 40px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            position: relative; z-index: 10;
+        }
+
+        /* Bảng thông tin nhanh */
+        .info-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; margin-bottom: 40px; padding-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        .info-card {
+            background: #fdfdfd; padding: 20px; border-radius: 8px;
+            border-left: 4px solid #16a085; box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .info-card h4 { margin: 0 0 10px 0; font-size: 13px; color: #7f8c8d; text-transform: uppercase; }
+        .info-card p { margin: 0; font-size: 16px; font-weight: 600; color: #2c3e50; }
+
+        /* Typography Bài viết */
+        .article { line-height: 1.8; font-size: 15.5px; color: #444; text-align: justify; }
+        .article h3 { color: #2c3e50; font-size: 24px; margin: 40px 0 20px 0; display: inline-block; position: relative;}
+        .article h3::after { content: ''; display: block; width: 50%; height: 3px; background: #16a085; margin-top: 5px; border-radius: 2px;}
+        
+        .lead-text { font-size: 17px; font-weight: 600; color: #2c3e50; line-height: 1.7; border-left: 4px solid #16a085; padding-left: 15px; margin-bottom: 25px;}
+        
+        .article ul { margin-left: 0; padding-left: 20px; }
+        .article li { margin-bottom: 12px; }
+
+        /* CSS: Lưới Thẻ Sự Kiện (Event Cards) */
+        .event-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-top: 25px;
+        }
+        .event-card {
+            background: #fff; border: 1px solid #eaeaea; border-radius: 12px; padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden;
+        }
+        .event-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: #16a085; }
+        .event-card:nth-child(2):before { background: #3498db; }
+        .event-card:nth-child(3):before { background: #f39c12; }
+        .event-card:nth-child(4):before { background: #9b59b6; }
+
+        .event-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+        
+        .event-date {
+            font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .event-card:nth-child(1) .event-date { color: #16a085; }
+        .event-card:nth-child(2) .event-date { color: #3498db; }
+        .event-card:nth-child(3) .event-date { color: #f39c12; }
+        .event-card:nth-child(4) .event-date { color: #9b59b6; }
+
+        .event-name { color: #2c3e50; font-size: 19px; font-weight: 700; margin: 0 0 15px 0; }
+        .event-card p { font-size: 14.5px; line-height: 1.6; color: #666; margin: 0; text-align: left;}
+
+        /* Giao diện thanh trôi cho màn hình điện thoại */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 32px; }
+            .content-section { margin: -20px 15px 80px 15px; padding: 25px; }
+            .hero-content { left: 5%; width: 90%; }
+            .event-grid { grid-template-columns: 1fr; }
+            
+            .floating-action-menu {
+                top: auto; bottom: 15px; right: 15px; left: 15px;
+                flex-direction: row; justify-content: space-between;
+                background: rgba(0, 0, 0, 0.8);
+                padding: 10px; border-radius: 20px;
+                box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            .float-btn {
+                flex: 1; flex-direction: column; gap: 4px; justify-content: center;
+                padding: 8px 5px; font-size: 11px;
+                background: transparent; border: none; box-shadow: none; border-radius: 12px;
+            }
+            .float-btn:hover { transform: none; background: rgba(255,255,255,0.1); color: #fff; }
+            .btn-action-add:hover { color: #e67e22; }
+            .btn-action-view:hover { color: #d2b4de; }
+            .btn-action-dir:hover { color: #85c1e9; }
+            .btn-action-add.added { background: rgba(39, 174, 96, 0.2); color: #2ecc71; }
+            .float-btn svg { width: 20px; height: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="back-nav">
+        <a href="index.html" class="btn-back">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            Quay lại
+        </a>
+    </div>
+
+    <div class="floating-action-menu">
+        <button id="addItineraryBtn" class="float-btn btn-action-add" onclick="toggleItinerary()">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <span>+ Thêm Lịch Trình</span>
+        </button>
+
+        <a href="lichtrinh.html" class="float-btn btn-action-view">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            <span>Xem Lịch Trình</span>
+        </a>
+
+        <a href="https://maps.app.goo.gl/1Jtp9xnuXjuF11Zf6" target="_blank" class="float-btn btn-action-dir">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <span>Chỉ Đường</span>
+        </a>
+    </div>
+
+    <div class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="zone-badge">Zone 4: Leisure & Ecology</span>
+            <h1 class="hero-title">Long Điền Sơn</h1>
+        </div>
+    </div>
+
+    <div class="content-section">
+        
+        <div class="info-grid">
+            <div class="info-card">
+                <h4>Vị trí</h4>
+                <p>4km từ trung tâm TP</p>
+            </div>
+            <div class="info-card" style="border-left-color: #3498db;">
+                <h4>Diện tích</h4>
+                <p>Hơn 27 hecta</p>
+            </div>
+            <div class="info-card" style="border-left-color: #f39c12;">
+                <h4>Đặc trưng</h4>
+                <p>Ốc đảo xanh giải nhiệt</p>
+            </div>
+        </div>
+
+        <div class="article">
+            <h3>Ốc đảo xanh giữa lòng xứ nắng</h3>
+            
+            <p class="lead-text">Nếu Núi Bà Đen là biểu tượng của sự kỳ vĩ, Chợ Long Hoa là nhịp sống giao thương, thì Khu du lịch Long Điền Sơn chính là "ốc đảo xanh" giải nhiệt lý tưởng nhất cho hành trình khám phá Tây Ninh của bạn.</p>
+            
+            <p>Bước chân qua cổng vào, bạn sẽ ấn tượng ngay với đôi rồng đá khổng lồ uốn lượn uốn lượn – biểu tượng cho sự thịnh vượng và uy nghi đúng như cái tên "Long Điền Sơn". Toàn bộ khuôn viên rộng lớn được quy hoạch tài tình với những lối đi rợp bóng cây cổ thụ, các tiểu cảnh hòn non bộ, hồ cá Koi và những cây cầu gỗ bắc ngang dòng kênh xanh mát.</p>
+            
+            <p>Sự kết hợp giữa kiến trúc đá mỹ nghệ tinh xảo và không gian mặt nước bao la giúp nơi đây luôn giữ được nhiệt độ ôn hòa, tách biệt hoàn toàn với cái nắng đặc trưng của vùng đất Tây Ninh.</p>
+
+            <h3>Gợi ý trải nghiệm đa dạng</h3>
+            <ul>
+                <li><strong>Giải nhiệt tại Công viên nước:</strong> Hệ thống hồ bơi rộng lớn, các máng trượt cảm giác mạnh và hồ tạo sóng là lựa chọn số một cho các gia đình có trẻ nhỏ.</li>
+                <li><strong>Giải trí và Thử thách:</strong> Trải nghiệm cảm giác phấn khích với tàu lượn siêu tốc, đĩa bay, đua xe F1 mini hoặc nhẹ nhàng hơn với hoạt động đạp vịt trên hồ.</li>
+                <li><strong>Thưởng thức ẩm thực:</strong> Tận hưởng tiệc nướng ngoài trời hoặc buffet cuối tuần với các món đặc sản như bò tơ Tây Ninh, cá đồng trong không gian bờ hồ thoáng đãng.</li>
+                <li><strong>Nghỉ dưỡng & Cắm trại:</strong> Nghỉ đêm tại hệ thống bungalow truyền thống để tận hưởng không khí yên tĩnh và ngắm nhìn khu du lịch lung linh ánh đèn về đêm.</li>
+            </ul>
+
+            <h3>Lịch trình sự kiện trong năm</h3>
+            
+            <div class="event-grid">
+                <div class="event-card">
+                    <div class="event-date">Tháng 1 - 2 Âm lịch</div>
+                    <h4 class="event-name">Lễ hội mùa Xuân</h4>
+                    <p>Hòa chung không khí Hội xuân Núi Bà với vườn hoa rực rỡ, trò chơi dân gian, múa lân sư rồng và ca nhạc tạp kỹ phục vụ khách du xuân.</p>
+                </div>
+
+                <div class="event-card">
+                    <div class="event-date">Tháng 5 - 8 Dương lịch</div>
+                    <h4 class="event-name">Mùa du lịch Hè</h4>
+                    <p>Thời điểm vàng của công viên nước với các ngày hội giải nhiệt và cuộc thi vận động dưới nước sôi động cho học sinh, sinh viên.</p>
+                </div>
+
+                <div class="event-card">
+                    <div class="event-date">Tháng 8 Âm lịch</div>
+                    <h4 class="event-name">Vui hội Trăng rằm</h4>
+                    <p>Tổ chức rước đèn, phá cỗ Trung thu và biểu diễn lân mã quy mô, mang đến không gian cổ tích đầy màu sắc cho các bạn nhỏ.</p>
+                </div>
+
+                <div class="event-card">
+                    <div class="event-date">Thứ 7 & Chủ Nhật</div>
+                    <h4 class="event-name">Hoạt động Cuối tuần</h4>
+                    <p>Chương trình biểu diễn nhạc nước mãn nhãn, giao lưu hát với nhau và tiệc buffet đặc sản địa phương thịnh soạn.</p>
+                </div>
+            </div>
+
+            <p style="margin-top: 30px; font-style: italic; color: #7f8c8d; border-left: 4px solid #16a085; padding-left: 15px;">
+                <strong>Mẹo từ dẫn tour:</strong> Hãy ghé thăm từ sau 15h00 chiều để tránh nắng và đón được những tia sáng xiên qua kẽ lá cực đẹp cho những bức hình check-in.
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        // Dữ liệu chuẩn của KDL Long Điền Sơn
+        const placeData = {
+            id: 'longdienson',
+            lat: 11.36051,
+            lng: 106.1220,
+            name: 'KDL Long Điền Sơn',
+            cat: 'Giải trí',
+            link: 'longdienson.html',
+            desc: 'Công viên nước và khu vui chơi phức hợp cho gia đình.',
+            theme: ['zone4'],
+            diff: 'easy',
+            activities: {
+                morning: "Tham gia các trò chơi vận động ngoài trời đầy năng lượng.",
+                noon: "Nghỉ ngơi trong chòi lá quanh hồ, thư giãn câu cá.",
+                afternoon: "Vui chơi giải nhiệt sảng khoái tại khu vực Công viên nước.",
+                evening: "Ăn tối ven hồ, thưởng thức ca nhạc giải trí."
+            }
+        };
+
+        const LOCAL_STORAGE_KEY = 'myTNDIitinerary';
+
+        function checkItineraryStatus() {
+            let itinerary = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+            const btn = document.getElementById('addItineraryBtn');
+            const span = btn.querySelector('span');
+            
+            const isExist = itinerary.some(item => item.id === placeData.id);
+            if (isExist) {
+                btn.classList.add('added');
+                span.innerText = '✓ Đã Thêm';
+            } else {
+                btn.classList.remove('added');
+                span.innerText = '+ Thêm Lịch Trình';
+            }
+        }
+
+        function toggleItinerary() {
+            let itinerary = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+            const index = itinerary.findIndex(item => item.id === placeData.id);
+            
+            if (index > -1) {
+                itinerary.splice(index, 1);
+            } else {
+                itinerary.push(placeData);
+            }
+            
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(itinerary));
+            checkItineraryStatus();
+        }
+
+        window.onload = checkItineraryStatus;
+    </script>
+</body>
+</html>

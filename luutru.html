@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lưu Trú Tây Ninh - Khám Phá Tây Ninh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            scroll-behavior: smooth;
+        }
+
+        /* Nút quay lại Trang chính */
+        .back-nav {
+            position: absolute; top: 20px; left: 20px; z-index: 100;
+        }
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(0, 0, 0, 0.6); color: #fff;
+            padding: 10px 20px; border-radius: 30px;
+            text-decoration: none; font-weight: 600; font-size: 14px;
+            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-back:hover { background: #2980b9; border-color: #2980b9; }
+
+        /* Banner hình ảnh */
+        .hero-section {
+            position: relative; width: 100%; height: 50vh;
+            background-image: url('TayninhImage/luutru.png');
+            background-color: #2c3e50;
+            background-size: cover; background-position: center;
+        }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%);
+        }
+        .hero-content {
+            position: absolute; bottom: 40px; left: 10%; width: 80%;
+            color: #fff;
+        }
+        .category-badge {
+            display: inline-block; background: #2980b9; color: #fff;
+            padding: 5px 15px; border-radius: 20px; font-size: 12px;
+            font-weight: 700; text-transform: uppercase; margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        .hero-title { font-size: 42px; margin: 0; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+
+        /* Nội dung chi tiết */
+        .content-section {
+            max-width: 1000px; margin: -40px auto 50px auto;
+            background: #fff; padding: 40px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            position: relative; z-index: 10;
+        }
+
+        .section-title {
+            color: #2c3e50; font-size: 24px; margin: 40px 0 25px 0;
+            display: flex; align-items: center; gap: 15px;
+            border-left: 5px solid #2980b9; padding-left: 15px;
+        }
+
+        /* Grid hiển thị các điểm lưu trú */
+        .stay-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px; margin-bottom: 30px;
+        }
+        .stay-card {
+            background: #fff; border: 1px solid #eee; border-radius: 15px;
+            padding: 25px; transition: all 0.3s ease;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .stay-card:hover {
+            transform: translateY(-5px); border-color: #2980b9;
+            box-shadow: 0 10px 25px rgba(41, 128, 185, 0.1);
+        }
+        .stay-name { font-size: 18px; font-weight: 700; color: #2c3e50; margin-bottom: 10px; }
+        .stay-desc { font-size: 14px; line-height: 1.6; color: #666; margin-bottom: 20px; flex-grow: 1; }
+        
+        /* Nút dẫn link Maps cho từng điểm */
+        .btn-go-map {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: #f1f3f4; color: #4285F4; padding: 10px; border-radius: 8px;
+            text-decoration: none; font-size: 13px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-go-map:hover { background: #4285F4; color: #fff; }
+
+        /* Box thông tin bổ sung */
+        .info-box {
+            background: #fff5f5; border: 1px solid #feb2b2; border-radius: 12px;
+            padding: 25px; margin-top: 40px;
+        }
+        .info-box h3 { color: #c53030; margin-top: 0; font-size: 18px; }
+        .info-box ul { padding-left: 20px; margin-bottom: 0; font-size: 14.5px; line-height: 1.7; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 30px; }
+            .content-section { margin: -20px 15px 30px 15px; padding: 25px; }
+            .stay-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="back-nav">
+        <a href="index.html" class="btn-back">
+            <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            Quay lại Bản đồ
+        </a>
+    </div>
+
+    <div class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="category-badge">Travel & Accommodation</span>
+            <h1 class="hero-title">Gợi Ý Điểm Lưu Trú</h1>
+        </div>
+    </div>
+
+    <div class="content-section">
+        
+        <h2 class="section-title">Khách sạn Cao cấp & Tiện nghi</h2>
+        <div class="stay-grid" id="hotel-grid">
+            <div style="color: #7f8c8d; font-style: italic;">Đang tải dữ liệu...</div>
+        </div>
+
+        <h2 class="section-title">Boutique & Homestay "Có gu"</h2>
+        <div class="stay-grid" id="homestay-grid">
+            <div style="color: #7f8c8d; font-style: italic;">Đang tải dữ liệu...</div>
+        </div>
+
+        <h2 class="section-title">Trải nghiệm Dã ngoại & Glamping</h2>
+        <div class="stay-grid" id="camping-grid">
+            <div style="color: #7f8c8d; font-style: italic;">Đang tải dữ liệu...</div>
+        </div>
+
+        <div class="info-box">
+            <h3>⚠️ Lưu ý quan trọng</h3>
+            <ul>
+                <li><strong>Đỉnh Núi Bà Đen:</strong> Không có khách sạn lưu trú qua đêm. Khách chỉ có thể cắm trại tự túc nếu trekking đường bộ.</li>
+                <li><strong>Chùa Bà:</strong> Có khu vực tá túc cho khách hành hương (đăng ký tại chùa).</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function loadStayFromCSV() {
+            try {
+                const response = await fetch('services.csv');
+                if (!response.ok) throw new Error("Không tìm thấy file services.csv");
+                const csvText = await response.text();
+                
+                let htmlHotels = '';
+                let htmlHomestays = '';
+                let htmlCampings = '';
+
+                const rows = csvText.split('\n');
+                const delimiter = csvText.includes(';') ? ';' : ',';
+                const regex = new RegExp(`${delimiter}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
+
+                for(let i = 1; i < rows.length; i++) { 
+                    if(!rows[i].trim()) continue;
+                    
+                    const cols = rows[i].split(regex).map(x => x.replace(/^"|"$/g, '').trim());
+                    
+                    if(cols.length >= 2) {
+                        let name = cols[0]; 
+                        let link = cols[1] || "#"; 
+                        let type = (cols[2] || "").toLowerCase();
+
+                        // Trí tuệ nhân tạo sửa lỗi format
+                        if (link.toLowerCase().includes('trú')) {
+                            type = 'trú'; link = link.replace(/trú/i, '').trim();
+                        } else if (link.toLowerCase().includes('thực') || link.toLowerCase().includes('ăn')) {
+                            type = 'thực'; link = link.replace(/thực|ăn/i, '').trim();
+                        }
+
+                        // Phân loại tự động
+                        const nameLower = name.toLowerCase();
+                        if (!type) {
+                            if (nameLower.includes('khách sạn') || nameLower.includes('homestay') || nameLower.includes('hotel') || nameLower.includes('camping') || nameLower.includes('villa') || nameLower.includes('house')) {
+                                type = 'trú';
+                            } else if (nameLower.includes('quán') || nameLower.includes('bò') || nameLower.includes('cơm')) {
+                                type = 'thực';
+                            } else {
+                                type = 'cafe';
+                            }
+                        }
+
+                        // Chỉ xử lý nếu là Lưu trú
+                        if (type.includes('trú')) {
+                            let desc = "Không gian riêng tư, thoải mái, phù hợp cho gia đình và nhóm bạn nghỉ ngơi sau hành trình dài.";
+                            
+                            // Tạo nội dung miêu tả thông minh dựa trên tên gọi
+                            if (nameLower.includes('vinpearl')) {
+                                desc = "Tầm nhìn panorama toàn thành phố, trang bị trụ sạc xe điện VinFast và phòng gym hiện đại 100% hệ thống tập máy (machine-based) an toàn, chuẩn xác.";
+                            } else if (nameLower.includes('sunrise') || nameLower.includes('khách sạn') || nameLower.includes('hotel')) {
+                                desc = "Vị trí trung tâm tiện lợi, bãi đỗ xe rộng rãi thuận tiện cho xe ô tô, xe điện. Phục vụ buffet sáng với nhiều lựa chọn dinh dưỡng.";
+                            } else if (nameLower.includes('camping') || nameLower.includes('lều') || nameLower.includes('glamping')) {
+                                desc = "Khu vực camping gần gũi thiên nhiên. Thích hợp tự dựng lều, đốt lửa trại và tận hưởng không khí ngoài trời.";
+                            } else if (nameLower.includes('homestay') || nameLower.includes('house') || nameLower.includes('villa')) {
+                                desc = "Kiến trúc thô mộc ấm cúng, sân vườn rộng thoáng, mang đến cảm giác chữa lành và bình yên tuyệt đối.";
+                            }
+
+                            const cardHTML = `
+                            <div class="stay-card">
+                                <div>
+                                    <div class="stay-name">${name}</div>
+                                    <p class="stay-desc">${desc}</p>
+                                </div>
+                                <a href="${link}" target="_blank" class="btn-go-map">
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                                    Xem trên Google Maps
+                                </a>
+                            </div>`;
+
+                            // Xếp vào đúng Grid
+                            if (nameLower.includes('khách sạn') || nameLower.includes('hotel') || nameLower.includes('vinpearl')) {
+                                htmlHotels += cardHTML;
+                            } else if (nameLower.includes('camping') || nameLower.includes('lều') || nameLower.includes('glamping')) {
+                                htmlCampings += cardHTML;
+                            } else {
+                                htmlHomestays += cardHTML;
+                            }
+                        }
+                    }
+                }
+                
+                // Cập nhật DOM
+                document.getElementById('hotel-grid').innerHTML = htmlHotels || '<div style="color: #7f8c8d; font-style: italic;">Đang cập nhật danh sách khách sạn...</div>';
+                document.getElementById('homestay-grid').innerHTML = htmlHomestays || '<div style="color: #7f8c8d; font-style: italic;">Đang cập nhật danh sách homestay...</div>';
+                document.getElementById('camping-grid').innerHTML = htmlCampings || '<div style="color: #7f8c8d; font-style: italic;">Đang cập nhật danh sách camping...</div>';
+                
+            } catch (error) {
+                console.log("Lỗi đọc file:", error);
+                const errorMsg = `<div style="color:red; font-style: italic;">⚠️ Lỗi: Không tải được danh sách. Vui lòng chạy trên Live Server.</div>`;
+                document.getElementById('hotel-grid').innerHTML = errorMsg;
+                document.getElementById('homestay-grid').innerHTML = errorMsg;
+                document.getElementById('camping-grid').innerHTML = errorMsg;
+            }
+        }
+
+        loadStayFromCSV();
+    </script>
+</body>
+</html>

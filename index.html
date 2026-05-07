@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám Phá Tây Ninh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body, html { margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; background-color: #111; overflow-x: hidden; scroll-behavior: smooth; }
+        
+        /* Nút Lịch Trình Nổi (Góc phải trên) */
+        #floating-itinerary {
+            position: fixed; top: 20px; right: 20px; z-index: 5000;
+            background: rgba(255, 255, 255, 0.9); color: #2c3e50; 
+            width: 45px; height: 45px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: 0.3s;
+            text-decoration: none; backdrop-filter: blur(5px);
+        }
+        #floating-itinerary:hover { transform: scale(1.1); background: #fff; color: #f39c12; }
+        #itinerary-badge {
+            position: absolute; top: -2px; right: -2px;
+            background: #e74c3c; color: #fff; border-radius: 50%; width: 18px; height: 18px;
+            display: flex; justify-content: center; align-items: center; font-size: 10px; font-weight: bold;
+            box-shadow: 0 2px 5px rgba(231, 76, 60, 0.4);
+        }
+
+        /* INTRO SCREEN */
+        #intro-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; cursor: pointer; background-color: #000; }
+        .intro-half { width: 50%; height: 100%; position: relative; overflow: hidden; transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1), opacity 1s ease-in-out; }
+        .intro-half img { width: 100vw; height: 100vh; object-fit: cover; position: absolute; top: 0; }
+        .intro-half.left { transform-origin: left center; }
+        .intro-half.left img { left: 0; }
+        .intro-half.right { transform-origin: right center; }
+        .intro-half.right img { right: 0; }
+        #click-hint { position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%); color: rgba(255, 255, 255, 0.85); font-size: 28px; font-weight: 400; letter-spacing: 8px; text-transform: uppercase; z-index: 10000; text-shadow: 0 4px 15px rgba(0,0,0,0.5); animation: pulse-welcome 2s infinite ease-in-out; pointer-events: none; transition: opacity 0.4s; }
+        @keyframes pulse-welcome { 0%, 100% { opacity: 0.5; transform: translateX(-50%) translateY(0); } 50% { opacity: 1; transform: translateX(-50%) translateY(-5px); } }
+        #intro-screen.split .intro-half.left { transform: translateX(-100vw) rotate(-5deg); opacity: 0; }
+        #intro-screen.split .intro-half.right { transform: translateX(100vw) rotate(5deg); opacity: 0; }
+        #intro-screen.split #click-hint { opacity: 0; }
+
+        /* MAP CONTAINER */
+        #map-container { width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; background: #1a1a1a; position: relative; }
+        svg { width: 100%; height: 100%; object-fit: contain; }
+        .scroll-down-indicator { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: rgba(255, 255, 255, 0.6); text-align: center; cursor: pointer; z-index: 100; animation: bounce 2s infinite; text-decoration: none; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+        .scroll-down-indicator svg { width: 30px; height: 30px; display: block; margin: 5px auto 0; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); } 40% { transform: translateY(-10px) translateX(-50%); } 60% { transform: translateY(-5px) translateX(-50%); } }
+        .hotspot { fill: rgba(255, 255, 255, 0); stroke: rgba(255, 255, 255, 0); cursor: pointer; transition: all 0.25s; }
+        .hotspot:hover, .hotspot.active { fill: rgba(243, 156, 18, 0.3); stroke: #f39c12; stroke-width: 2.5px; filter: drop-shadow(0 0 12px rgba(243, 156, 18, 0.9)); }
+        #tooltip { position: absolute; background: rgba(20, 20, 20, 0.9); color: #f39c12; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 700; pointer-events: none; opacity: 0; transform: translate(-50%, -150%); transition: opacity 0.2s ease; z-index: 2000; border: 1px solid #f39c12; white-space: nowrap; }
+        #tooltip.show { opacity: 1; }
+
+        /* SIDEBAR */
+        #info-sidebar { position: fixed; top: 0; right: -400px; width: 380px; height: 100vh; background-color: rgba(255, 255, 255, 0.98); box-shadow: -5px 0 25px rgba(0,0,0,0.3); z-index: 3000; transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 30px; box-sizing: border-box; overflow-y: auto; }
+        #info-sidebar.active { right: 0; }
+        .sidebar-zone { color: #e67e22; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 50px; text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9);}
+        .sidebar-dist { font-size: 15px; color: #c0392b; font-weight: 700; margin: 15px 0 10px 0; display: flex; align-items: center; gap: 8px; text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9);}
+        .sidebar-desc { color: #444; line-height: 1.6; font-size: 14px; text-align: justify; margin-bottom: 25px; position: relative; z-index: 2;}
+        
+        .action-container { display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 2;}
+        .secondary-actions { display: flex; gap: 10px; }
+        .btn-base { display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 8px; font-weight: 600; transition: 0.2s; cursor: pointer; border: none; gap: 6px; box-sizing: border-box;}
+        
+        .btn-detail { background-color: #2c3e50; color: white; padding: 14px; font-size: 13px; width: 100%; box-shadow: 0 4px 10px rgba(44,62,80,0.15);}
+        .btn-detail:hover { background-color: #1a252f; }
+        
+        .btn-add-tour, .btn-maps { flex: 1; padding: 10px 5px; font-size: 12px; border: 1px solid #dcdde1; background: #fff; color: #555; }
+        .btn-add-tour:hover { border-color: #f39c12; color: #f39c12; background: #fffbf2; }
+        .btn-add-tour.added { background-color: #27ae60; border-color: #27ae60; color: #fff; }
+        .btn-maps:hover { border-color: #4285F4; color: #4285F4; background: #f1f6ff; }
+        
+        .close-btn { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.85); border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;}
+
+        /* EXPLORE SECTION */
+        #explore-section { padding: 80px 10%; background: #111; min-height: 60vh; display: flex; align-items: center; justify-content: center;}
+        /* Trả lại 2 cột cân xứng cho màn hình lớn */
+        .explore-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 100%; max-width: 1200px; }
+        .explore-card { background: #1a1a1a; border: 1px solid #333; border-radius: 20px; padding: 50px 30px; text-align: center; cursor: pointer; transition: all 0.4s ease; position: relative; overflow: hidden; }
+        .explore-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #555; transition: 0.4s; }
+        .explore-card:hover { transform: translateY(-10px); background: #222; border-color: #f39c12; box-shadow: 0 15px 40px rgba(243, 156, 18, 0.15); }
+        .explore-card:hover::before { background: #f39c12; }
+        .explore-card svg { width: 60px; height: 60px; fill: #f39c12; margin-bottom: 20px; }
+        .explore-card h2 { color: #fff; font-size: 28px; margin: 0 0 15px 0; font-weight: 700; }
+        .explore-card p { color: #aaa; font-size: 15px; line-height: 1.6; margin: 0; }
+
+        @media (max-width: 768px) {
+            #info-sidebar { width: 100vw; right: -100vw; padding: 20px; }
+            .explore-grid { grid-template-columns: 1fr; gap: 25px; }
+            #explore-section { padding: 60px 5%; }
+            #floating-itinerary { top: auto; bottom: 20px; right: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="lichtrinh.html" id="floating-itinerary" title="Lịch trình của tôi">
+        <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+        <span id="itinerary-badge">0</span>
+    </a>
+
+    <div id="intro-screen">
+        <div class="intro-half left"><img src="TayNinhintro.png" alt="Intro"></div>
+        <div class="intro-half right"><img src="TayNinhintro.png" alt="Intro"></div>
+        <div id="click-hint">WELCOME</div>
+    </div>
+
+    <div id="tooltip">Tên địa danh</div>
+
+    <div id="info-sidebar">
+        <button class="close-btn" id="close-sidebar">✕</button>
+        <p class="sidebar-zone" id="place-zone">Khu vực</p>
+        <div class="sidebar-dist">📍 <span id="place-dist">0 km</span> từ An Sương</div>
+        <p class="sidebar-desc" id="place-desc">Mô tả chi tiết về địa điểm...</p>
+        
+        <div class="action-container">
+            <a href="#" id="info-link" class="btn-base btn-detail">XEM CHI TIẾT ĐỊA DANH</a>
+            <div class="secondary-actions">
+                <button id="add-tour-btn" class="btn-base btn-add-tour">
+                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    <span id="add-tour-text">Thêm lịch trình</span>
+                </button>
+                <a href="#" id="maps-link" target="_blank" class="btn-base btn-maps">
+                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    Chỉ đường
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="map-container">
+        <svg viewBox="0 0 1920 1080" id="main-svg" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <image href="TAYNINH.png" x="0" y="0" width="1920" height="1080" />
+            <polygon class="hotspot" data-id="nuibaden" points="1676,135 1836,193 1834,228 1672,170" />
+            <polygon class="hotspot" data-id="toathanh" points="1404,498 1547,561 1547,594 1404,530" />
+            <polygon class="hotspot" data-id="cholonghoa" points="1649,619 1832,704 1832,735 1649,652" />
+            <polygon class="hotspot" data-id="goken" points="1086,567 1250,638 1250,675 1086,598" />
+            <polygon class="hotspot" data-id="thapco" points="1392,789 1508,841 1508,876 1392,825" />
+            <polygon class="hotspot" data-id="hodautieng" points="287,517 453,600 453,631 283,548" />
+            <polygon class="hotspot" data-id="mathienlanh" points="538,372 729,446 729,476 538,405" />
+            <polygon class="hotspot" data-id="suoitruc" points="623,582 760,636 760,669 623,621" />
+            <polygon class="hotspot" data-id="logoxamat" points="688,56 868,125 862,158 687,95" />
+            <polygon class="hotspot" data-id="cancudia" points="1065,96 1221,150 1217,185 1057,127" />
+            <polygon class="hotspot" data-id="longdienson" points="1009,814 1192,901 1192,935 1009,843" />
+        </svg>
+
+        <a href="#explore-section" class="scroll-down-indicator">
+            Khám phá thêm
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </a>
+    </div>
+
+    <div id="explore-section">
+        <div class="explore-grid">
+            <div class="explore-card" onclick="window.location.href='amthuc.html'">
+                <svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+                <h2>Tinh Hoa Ẩm Thực</h2>
+                <p>Khám phá bản đồ hương vị đặc sắc: bò tơ trứ danh, bánh canh Trảng Bàng và nghệ thuật món chay.</p>
+            </div>
+            <div class="explore-card" onclick="window.location.href='luutru.html'">
+                <svg viewBox="0 0 24 24"><path d="M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V5H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z"/></svg>
+                <h2>Gợi Ý Lưu Trú</h2>
+                <p>Từ khách sạn 5 sao cao cấp đến các khu Glamping sinh thái yên bình ven hồ Dầu Tiếng.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const introScreen = document.getElementById('intro-screen');
+        if (introScreen) {
+            introScreen.addEventListener('click', function() {
+                this.classList.add('split');
+                setTimeout(() => { this.style.display = 'none'; }, 1200); 
+            });
+        }
+
+        const placesData = {
+            "nuibaden": { id: "nuibaden", name: "Núi Bà Đen", zone: "Zone 1: Spiritual & Local", dist: "82,6 km", cat: "Tâm linh & Vận động", image: "TayninhImage/nuibaden.png", info: "nuibaden.html", map: "https://maps.app.goo.gl/imvTggitFnEjs7Bu6", desc: "Biểu tượng của Tây Ninh và là 'Nóc nhà Nam Bộ'. Địa điểm lý tưởng để rèn luyện sức bền thể chất." },
+            "toathanh": { id: "toathanh", name: "Tòa Thánh Tây Ninh", zone: "Zone 1: Spiritual & Local", dist: "81,2 km", cat: "Kiến trúc & Tôn giáo", image: "TayninhImage/toathanh.png", info: "toathanh.html", map: "https://maps.app.goo.gl/kNQGKxGQtAsfQW4b6", desc: "Kiệt tác kiến trúc đồ sộ, mang lại không gian tâm linh thư thái và chiều sâu lịch sử." },
+            "cholonghoa": { id: "cholonghoa", name: "Chợ Long Hoa", zone: "Zone 1: Spiritual & Local", dist: "79,5 km", cat: "Văn hóa địa phương", image: "TayninhImage/longhoa.png", info: "cholonghoa.html", map: "https://maps.app.goo.gl/71regna6d5AnkmKS9", desc: "Ngôi chợ sầm uất với thiết kế Bát Quái độc đáo, quy tụ các loại đặc sản địa phương." },
+            "goken": { id: "goken", name: "Chùa Gò Kén", zone: "Zone 1: Spiritual & Local", dist: "81,9 km", cat: "Tâm linh", image: "TayninhImage/Chuagoken.png", info: "chuagoken.html", map: "https://maps.app.goo.gl/HfVPnLH1aMzMjsim6", desc: "Ngôi cổ tự trăm tuổi giúp tái tạo năng lượng tinh thần." },
+            "thapco": { id: "thapcobinhthanh", name: "Tháp Cổ", zone: "Zone 1 & 3: Heritage", dist: "55,0 km", cat: "Khảo cổ & Lịch sử", image: "TayninhImage/thapco.png", info: "thapco.html", map: "https://maps.app.goo.gl/RLqqocGEbr7bdnrv6", desc: "Di tích từ nền văn hóa Óc Eo rực rỡ với kỹ thuật xây gạch không vữa nghìn năm." },
+            "hodautieng": { id: "hodautieng", name: "Hồ Dầu Tiếng", zone: "Zone 2: Nature & Camping", dist: "82,4 km", cat: "Dã ngoại & Cắm trại", image: "TayninhImage/hodautieng.png", info: "hodautieng.html", map: "https://maps.app.goo.gl/SuhtTgGJZomjYBU5A", desc: "Hồ nước nhân tạo lớn nhất Đông Nam Á, lý tưởng cho cắm trại và chèo SUP." },
+            "mathienlanh": { id: "mathienlanh", name: "Ma Thiên Lãnh", zone: "Zone 2: Nature & Camping", dist: "85,0 km", cat: "Khám phá thiên nhiên", image: "TayninhImage/mathienlanh.png", info: "mathienlanh.html", map: "https://maps.app.goo.gl/QGaR3A42Lnjy4FLr5", desc: "Thung lũng hoang sơ mang lại cảm giác bình yên tuyệt đối giữa núi rừng." },
+            "suoitruc": { id: "suoitruc", name: "Suối Trúc", zone: "Zone 2: Nature & Camping", dist: "78,1 km", cat: "Khám phá thiên nhiên", image: "TayninhImage/suoitruc.png", info: "suoitruc.html", map: "https://maps.app.goo.gl/86rQhcKsRqBAWQud9", desc: "Dòng suối mát lạnh len lỏi qua rừng trúc xanh mướt." },
+            "logoxamat": { id: "logoxamat", name: "Lò Gò Xa Mát", zone: "Zone 3: Eco & History", dist: "115,0 km", cat: "Sinh thái", image: "TayninhImage/logoxamat.png", info: "logoxamat.html", map: "https://maps.app.goo.gl/ZLhvonjPod7EVV1K9", desc: "Vườn quốc gia với hệ sinh thái rừng chuyển tiếp đặc biệt." },
+            "cancudia": { id: "cancudia", name: "Căn Cứ Trung Ương Cục", zone: "Zone 3: Eco & History", dist: "135,0 km", cat: "Di tích Lịch sử", image: "TayninhImage/trunguongcuc.png", info: "trunguongcuc.html", map: "https://maps.app.goo.gl/8PxZLN8PQgqtxH3i7", desc: "Di tích lịch sử cách mạng hào hùng, biểu tượng của ý chí dân tộc." },
+            "longdienson": { id: "longdienson", name: "KDL Long Điền Sơn", zone: "Zone 4: Leisure", dist: "85,0 km", cat: "Giải trí", image: "TayninhImage/longdienson.png", info: "longdienson.html", map: "https://maps.app.goo.gl/1Jtp9xnuXjuF11Zf6", desc: "Khu phức hợp giải trí xanh mát với công viên nước hiện đại." }
+        };
+
+        const hotspots = document.querySelectorAll('.hotspot');
+        const tooltip = document.getElementById('tooltip');
+        const sidebar = document.getElementById('info-sidebar');
+        let activeSpot = null;
+        let currentPlaceData = null; 
+
+        // LOCAL STORAGE CHO LỊCH TRÌNH
+        let myItinerary = JSON.parse(localStorage.getItem('myTNDIitinerary')) || [];
+
+        function updateItineraryBadge() {
+            document.getElementById('itinerary-badge').innerText = myItinerary.length;
+        }
+        updateItineraryBadge();
+
+        function isPlaceInItinerary(id) {
+            return myItinerary.some(item => item.id === id);
+        }
+
+        // NÚT THÊM VÀO LỊCH TRÌNH
+        const addTourBtn = document.getElementById('add-tour-btn');
+        const addTourText = document.getElementById('add-tour-text');
+
+        addTourBtn.addEventListener('click', () => {
+            if(!currentPlaceData) return;
+            
+            if(isPlaceInItinerary(currentPlaceData.id)) {
+                myItinerary = myItinerary.filter(item => item.id !== currentPlaceData.id);
+                addTourBtn.classList.remove('added');
+                addTourText.innerText = "Thêm lịch trình";
+            } else {
+                myItinerary.push({
+                    id: currentPlaceData.id,
+                    name: currentPlaceData.name,
+                    cat: currentPlaceData.cat,
+                    desc: currentPlaceData.desc
+                });
+                addTourBtn.classList.add('added');
+                addTourText.innerText = "Đã thêm ✓";
+            }
+            
+            localStorage.setItem('myTNDIitinerary', JSON.stringify(myItinerary));
+            updateItineraryBadge();
+        });
+
+        // BẢN ĐỒ
+        document.addEventListener('mousemove', (e) => {
+            tooltip.style.left = e.clientX + 'px';
+            tooltip.style.top = e.clientY + 'px';
+        });
+
+        hotspots.forEach(spot => {
+            spot.addEventListener('mouseenter', () => { 
+                tooltip.innerText = placesData[spot.getAttribute('data-id')].name; 
+                tooltip.classList.add('show'); 
+            });
+            spot.addEventListener('mouseleave', () => { tooltip.classList.remove('show'); });
+
+            spot.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if(activeSpot) activeSpot.classList.remove('active');
+                activeSpot = spot; spot.classList.add('active');
+
+                currentPlaceData = placesData[spot.getAttribute('data-id')];
+
+                sidebar.style.backgroundImage = `linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 40%, rgba(255, 255, 255, 1) 80%), url('${currentPlaceData.image}')`;
+                sidebar.style.backgroundSize = 'cover'; sidebar.style.backgroundPosition = 'center top';
+
+                document.getElementById('place-zone').innerText = currentPlaceData.zone;
+                document.getElementById('place-dist').innerText = currentPlaceData.dist;
+                document.getElementById('place-desc').innerText = currentPlaceData.desc;
+                document.getElementById('maps-link').href = currentPlaceData.map;
+                document.getElementById('info-link').href = currentPlaceData.info;
+
+                if(isPlaceInItinerary(currentPlaceData.id)) {
+                    addTourBtn.classList.add('added');
+                    addTourText.innerText = "Đã thêm ✓";
+                } else {
+                    addTourBtn.classList.remove('added');
+                    addTourText.innerText = "Thêm lịch trình";
+                }
+
+                sidebar.classList.add('active');
+            });
+        });
+
+        document.getElementById('close-sidebar').addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            if(activeSpot) activeSpot.classList.remove('active');
+        });
+
+        document.body.addEventListener('click', (e) => {
+            if(!e.target.closest('#info-sidebar') && !e.target.closest('#intro-screen') && !e.target.closest('.explore-card') && !e.target.classList.contains('hotspot')) {
+                sidebar.classList.remove('active');
+                if(activeSpot) activeSpot.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

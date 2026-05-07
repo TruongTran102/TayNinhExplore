@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suối Trúc - Khám Phá Tây Ninh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body, html { 
+            margin: 0; padding: 0; 
+            font-family: 'Montserrat', sans-serif; 
+            background-color: #f4f7f6; 
+            color: #333;
+        }
+
+        /* Nút quay lại Trang chính - Đã ghim cố định */
+        .back-nav {
+            position: fixed; top: 20px; left: 20px; z-index: 1000;
+        }
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(0, 0, 0, 0.4); color: #fff;
+            padding: 8px 16px; border-radius: 30px;
+            text-decoration: none; font-weight: 600; font-size: 13px;
+            backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-back:hover { background: #27ae60; border-color: #27ae60; }
+
+        /* THANH CÔNG CỤ TRÔI - GÓC TRÊN BÊN PHẢI */
+        .floating-action-menu {
+            position: fixed;
+            top: 20px; right: 20px;
+            display: flex; flex-direction: row; gap: 10px;
+            z-index: 1000;
+        }
+        .float-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            background: rgba(0, 0, 0, 0.4); /* Nền đen trong suốt mờ */
+            color: #fff;
+            padding: 8px 16px; border-radius: 30px;
+            font-family: inherit; font-size: 13px; font-weight: 600;
+            text-decoration: none; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;
+            backdrop-filter: blur(8px); /* Hiệu ứng kính mờ */
+            transition: all 0.3s ease;
+        }
+        .float-btn svg { width: 16px; height: 16px; flex-shrink: 0; fill: currentColor; }
+        .float-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+        /* Tinh chỉnh màu Hover cho từng nút */
+        .btn-action-add:hover { background: #e67e22; border-color: #e67e22; }
+        .btn-action-add.added { background: #27ae60; border-color: #27ae60; color: #fff; }
+        .btn-action-add.added:hover { background: #219a52; }
+        
+        .btn-action-view:hover { background: #8e44ad; border-color: #8e44ad; }
+        .btn-action-dir:hover { background: #2980b9; border-color: #2980b9; }
+
+        /* Banner hình ảnh (Hero Section) */
+        .hero-section {
+            position: relative; width: 100%; height: 50vh;
+            background-image: url('TayninhImage/suoitruc.png');
+            background-size: cover; background-position: center;
+        }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%);
+        }
+        .hero-content {
+            position: absolute; bottom: 40px; left: 10%; width: 80%;
+            color: #fff;
+        }
+        .zone-badge {
+            display: inline-block; background: #27ae60; color: #fff;
+            padding: 5px 15px; border-radius: 20px; font-size: 12px;
+            font-weight: 700; text-transform: uppercase; margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        .hero-title { font-size: 42px; margin: 0; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+
+        /* Nội dung chi tiết */
+        .content-section {
+            max-width: 900px; margin: -40px auto 50px auto;
+            background: #fff; padding: 40px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            position: relative; z-index: 10;
+        }
+
+        /* Bảng thông tin nhanh */
+        .info-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; margin-bottom: 40px; padding-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        .info-card {
+            background: #fdfdfd; padding: 20px; border-radius: 8px;
+            border-left: 4px solid #27ae60; box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .info-card h4 { margin: 0 0 10px 0; font-size: 13px; color: #7f8c8d; text-transform: uppercase; }
+        .info-card p { margin: 0; font-size: 16px; font-weight: 600; color: #2c3e50; }
+
+        /* Typography Bài viết */
+        .article { line-height: 1.8; font-size: 15.5px; color: #444; text-align: justify; }
+        .article h3 { color: #2c3e50; font-size: 22px; margin: 40px 0 20px 0; border-left: 4px solid #27ae60; padding-left: 15px; }
+        
+        .lead-text { font-size: 17px; font-weight: 600; color: #2c3e50; line-height: 1.7; margin-bottom: 25px; border-bottom: 1px dashed #eee; padding-bottom: 20px;}
+
+        /* CSS: Lưới trải nghiệm */
+        .experience-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 25px 0;
+        }
+        .exp-card {
+            background: #f8fbf9; border-radius: 10px; padding: 20px; border: 1px solid #e0ece6;
+            transition: all 0.3s ease;
+        }
+        .exp-card:hover { border-color: #27ae60; box-shadow: 0 5px 15px rgba(39, 174, 96, 0.1); }
+        .exp-card h4 { margin: 0 0 10px 0; color: #27ae60; font-size: 17px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+
+        /* Nhịp sống theo mùa */
+        .season-container {
+            background: #f0f7f4; border-radius: 12px; padding: 30px; margin: 30px 0;
+        }
+        .season-item { margin-bottom: 25px; }
+        .season-item:last-child { margin-bottom: 0; }
+        .season-title { color: #27ae60; font-weight: 700; font-size: 14px; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .season-status { font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px; }
+
+        /* Box Mẹo nhỏ */
+        .tips-box {
+            background: #eef9f3; border-radius: 12px; padding: 25px; margin-top: 40px; border-left: 6px solid #27ae60;
+        }
+        .tips-box h4 { margin-top: 0; color: #27ae60; display: flex; align-items: center; gap: 10px; }
+
+        /* Giao diện thanh trôi cho màn hình điện thoại */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 32px; }
+            .content-section { margin: -20px 15px 80px 15px; padding: 25px; }
+            
+            .floating-action-menu {
+                top: auto; bottom: 15px; right: 15px; left: 15px;
+                flex-direction: row; justify-content: space-between;
+                background: rgba(0, 0, 0, 0.8);
+                padding: 10px; border-radius: 20px;
+                box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            .float-btn {
+                flex: 1; flex-direction: column; gap: 4px; justify-content: center;
+                padding: 8px 5px; font-size: 11px;
+                background: transparent; border: none; box-shadow: none; border-radius: 12px;
+            }
+            .float-btn:hover { transform: none; background: rgba(255,255,255,0.1); color: #fff; }
+            .btn-action-add:hover { color: #e67e22; }
+            .btn-action-view:hover { color: #d2b4de; }
+            .btn-action-dir:hover { color: #85c1e9; }
+            .btn-action-add.added { background: rgba(39, 174, 96, 0.2); color: #2ecc71; }
+            .float-btn svg { width: 20px; height: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="back-nav">
+        <a href="index.html" class="btn-back">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            Quay lại
+        </a>
+    </div>
+
+    <div class="floating-action-menu">
+        <button id="addItineraryBtn" class="float-btn btn-action-add" onclick="toggleItinerary()">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <span>+ Thêm Lịch Trình</span>
+        </button>
+
+        <a href="lichtrinh.html" class="float-btn btn-action-view">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            <span>Xem Lịch Trình</span>
+        </a>
+
+        <a href="https://maps.app.goo.gl/86rQhcKsRqBAWQud9" target="_blank" class="float-btn btn-action-dir">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <span>Chỉ Đường</span>
+        </a>
+    </div>
+
+    <div class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="zone-badge">Zone 2: Nature & Healing</span>
+            <h1 class="hero-title">Suối Trúc</h1>
+        </div>
+    </div>
+
+    <div class="content-section">
+        
+        <div class="info-grid">
+            <div class="info-card">
+                <h4>Vị trí</h4>
+                <p>Chân núi Cậu</p>
+            </div>
+            <div class="info-card" style="border-left-color: #e67e22;">
+                <h4>Cảnh quan</h4>
+                <p>Rừng trúc & Bãi đá</p>
+            </div>
+            <div class="info-card" style="border-left-color: #3498db;">
+                <h4>Tên gọi khác</h4>
+                <p>Hồ Than Thở</p>
+            </div>
+        </div>
+
+        <div class="article">
+            <p class="lead-text">Nếu bạn đang tìm kiếm một khoảng lặng xanh mát, tách biệt hoàn toàn với những khối bê tông cốt thép của đô thị, thì Suối Trúc chính là "nàng thơ" đang ẩn mình dưới chân núi Cậu.</p>
+            
+            <h3>1. Vẻ đẹp hoang sơ giữa rừng già</h3>
+            <p>Nằm ở vùng giáp ranh giữa Tây Ninh và Bình Dương, con suối này mang một vẻ đẹp nguyên bản với những tầng đá xếp lớp và rừng trúc bao quanh. Lối dẫn vào suối là những cung đường rợp bóng những rặng trúc xanh mướt, đan xen vào nhau tạo thành những mái vòm tự nhiên mát rượi.</p>
+            <p>Suối Trúc quyến rũ bởi sự sắp đặt tài tình của tạo hóa: Những phiến đá gợn sóng, bằng phẳng và rộng lớn như được bàn tay ai đó mài nhẵn. Dòng nước len lỏi qua các khe đá, đổ vào những hố trũng tự nhiên tạo thành các hồ bơi mini trong vắt, lý tưởng để bạn ngâm mình giữa làn nước mát lạnh.</p>
+            
+            <h3>2. Các hoạt động trải nghiệm nổi bật</h3>
+            <div class="experience-grid">
+                <div class="exp-card">
+                    <h4>Trekking dọc dòng suối</h4>
+                    <p>Bài tập vận động nhẹ nhàng qua những tảng đá mấp mô để tiến sâu vào thượng nguồn – nơi cảnh sắc tĩnh mịch và hoang vu.</p>
+                </div>
+                <div class="exp-card">
+                    <h4>Picnic trên đá</h4>
+                    <p>Thưởng thức tiệc nướng cùng bạn bè ngay trên những phiến đá phẳng lỳ giữa tiếng suối chảy róc rách.</p>
+                </div>
+                <div class="exp-card">
+                    <h4>Nhiếp ảnh Dã ngoại</h4>
+                    <p>Bối cảnh rừng trúc và đá cuội là nơi lý tưởng cho những bộ ảnh phong cách phóng khoáng, hoang dã.</p>
+                </div>
+            </div>
+
+            <h3>3. Nhịp sống của suối trong năm</h3>
+            <div class="season-container">
+                <div class="season-item">
+                    <span class="season-title">Tháng 5 - Tháng 8 (Đầu mùa mưa)</span>
+                    <span class="season-status">✨ Thời điểm vàng</span>
+                    <p>Dòng nước trong vắt và mát lạnh chảy tràn qua các bậc đá. Nước chảy vừa phải, không quá xiết, cực kỳ an toàn cho tắm suối và picnic.</p>
+                </div>
+                <div class="season-item">
+                    <span class="season-title">Tháng 9 - Tháng 12 (Cuối mùa mưa)</span>
+                    <span class="season-status">⚠️ Cần thận trọng</span>
+                    <p>Rừng trúc xanh tốt nhất nhưng lượng nước đổ về rất lớn. Cần quan sát thời tiết để tránh lũ quét và lưu ý đá trơn do rêu xanh.</p>
+                </div>
+                <div class="season-item">
+                    <span class="season-status" style="color: #7f8c8d;">Tháng 1 - Tháng 4 (Mùa khô)</span>
+                    <p>Suối cạn kiệt, chỉ còn bãi đá khô khốc. Cảnh quan xác xơ, không khuyến khích tham quan vào thời điểm này.</p>
+                </div>
+            </div>
+
+            <div class="tips-box">
+                <h4><svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg> Mẹo nhỏ từ hướng dẫn viên</h4>
+                <ul>
+                    <li><strong>Thời điểm:</strong> Có mặt tại suối từ 8h00 - 9h00 sáng để chọn được chỗ ngồi đẹp và tận hưởng sự tĩnh lặng.</li>
+                    <li><strong>Trang phục:</strong> Ưu tiên giày có độ bám tốt (sandal thể thao, giày leo núi) để tránh trơn trượt trên địa hình đá cuội.</li>
+                    <li><strong>Ý thức bảo tồn:</strong> Thực hiện nguyên tắc <em>"Không để lại gì ngoài những dấu chân"</em> để bảo vệ lá phổi xanh.</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Dữ liệu chuẩn của Suối Trúc
+        const placeData = {
+            id: 'suoitruc',
+            lat: 11.33323,
+            lng: 106.3589,
+            name: 'Suối Trúc',
+            cat: 'Khám phá thiên nhiên',
+            link: 'suoitruc.html',
+            desc: 'Trekking nhẹ nhàng và tắm suối dưới những rặng trúc xanh.',
+            theme: ['zone2'],
+            diff: 'medium',
+            activities: {
+                morning: "Lội suối mát lạnh, băng qua những rặng trúc xanh rì.",
+                noon: "Tổ chức Picnic, ăn trưa trên các phiến đá phẳng rộng lớn.",
+                afternoon: "Tắm suối giải nhiệt buổi chiều cực kỳ sảng khoái.",
+                evening: "Rời khỏi khu vực suối trước khi trời tối để đảm bảo an toàn."
+            }
+        };
+
+        const LOCAL_STORAGE_KEY = 'myTNDIitinerary';
+
+        function checkItineraryStatus() {
+            let itinerary = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+            const btn = document.getElementById('addItineraryBtn');
+            const span = btn.querySelector('span');
+            
+            const isExist = itinerary.some(item => item.id === placeData.id);
+            if (isExist) {
+                btn.classList.add('added');
+                span.innerText = '✓ Đã Thêm';
+            } else {
+                btn.classList.remove('added');
+                span.innerText = '+ Thêm Lịch Trình';
+            }
+        }
+
+        function toggleItinerary() {
+            let itinerary = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+            const index = itinerary.findIndex(item => item.id === placeData.id);
+            
+            if (index > -1) {
+                itinerary.splice(index, 1);
+            } else {
+                itinerary.push(placeData);
+            }
+            
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(itinerary));
+            checkItineraryStatus();
+        }
+
+        window.onload = checkItineraryStatus;
+    </script>
+</body>
+</html>

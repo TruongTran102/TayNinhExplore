@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tự Tạo Lịch Trình - Khám Phá Tây Ninh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body, html { margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; background-color: #f4f7f6; color: #333; }
+        .back-nav { position: absolute; top: 20px; left: 20px; z-index: 100; }
+        .btn-back { display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 10px 20px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 14px; backdrop-filter: blur(5px); transition: 0.3s; }
+        .btn-back:hover { background: #f39c12; }
+        .hero-section { position: relative; width: 100%; height: 35vh; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('TayninhImage/lichtrinh.png') center/cover; background-color: #2c3e50; display: flex; align-items: center; justify-content: center; color: #fff; text-align: center; }
+        .hero-title { font-size: 38px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px;}
+        .hero-subtitle { font-size: 16px; font-weight: 400; opacity: 0.9; }
+
+        .builder-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 6fr 4fr; gap: 30px; }
+        .places-panel { background: transparent; }
+        .section-header { font-size: 22px; color: #2c3e50; border-left: 4px solid #f39c12; padding-left: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;}
+        
+        .places-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .place-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #eaeaea; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+        .place-card:hover { border-color: #f39c12; box-shadow: 0 8px 25px rgba(243, 156, 18, 0.1); transform: translateY(-3px); }
+        .place-cat { font-size: 11px; font-weight: 700; color: #fff; background: #3498db; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px; width: fit-content; }
+        
+        .place-name { font-size: 17px; font-weight: 700; color: #2c3e50; margin: 0 0 10px 0; text-decoration: none; transition: 0.2s;}
+        .place-name:hover { color: #f39c12; text-decoration: underline; }
+        
+        .place-desc { font-size: 13px; color: #666; line-height: 1.5; margin-bottom: 15px; flex-grow: 1;}
+        
+        .btn-add { background: #fdf5e6; color: #e67e22; border: 1px solid #f39c12; width: 100%; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-add:hover { background: #f39c12; color: #fff; }
+        .btn-add.added { background: #27ae60; color: white; border-color: #27ae60; }
+
+        .auto-generate-header { background: linear-gradient(135deg, #f39c12 0%, #d35400 100%); padding: 20px; border-radius: 12px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 20px rgba(211, 84, 0, 0.2); color: white; }
+        .auto-generate-header h3 { margin: 0; font-size: 20px; }
+        .auto-generate-header p { margin: 5px 0 0 0; font-size: 13px; opacity: 0.9; }
+
+        .btn-magic { background: #fff; color: #d35400; border: none; padding: 12px 25px; border-radius: 30px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-magic:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+
+        .auto-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 5000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .auto-modal-overlay.show { opacity: 1; pointer-events: auto; }
+        .auto-form-content { background: #fff; padding: 40px; border-radius: 15px; width: 90%; max-width: 500px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); position: relative; transform: translateY(30px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .auto-modal-overlay.show .auto-form-content { transform: translateY(0); }
+        .auto-form-content h2 { margin-top: 0; color: #2c3e50; font-size: 24px; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px; }
+        .close-auto-modal { position: absolute; top: 15px; right: 15px; background: #eee; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; justify-content: center; align-items: center;}
+        .close-auto-modal:hover { background: #e74c3c; color: white; }
+
+        .form-group { margin-bottom: 22px; }
+        .form-group label { display: block; font-weight: 600; font-size: 14px; color: #34495e; margin-bottom: 10px; }
+        .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 14px; color: #333; background: #fdfdfd; cursor: pointer; }
+        .form-group select:focus { border-color: #f39c12; outline: none; }
+
+        .checkbox-group { display: flex; flex-direction: column; gap: 10px; }
+        .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #444; background: #f9f9f9; padding: 10px 15px; border-radius: 8px; border: 1px solid #eee; cursor: pointer; transition: 0.2s; font-weight: 500; }
+        .checkbox-label:hover { border-color: #f39c12; background: #fffaf0; }
+        .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #f39c12; }
+
+        .btn-submit-auto { width: 100%; background: #2ecc71; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-submit-auto:hover { background: #27ae60; }
+
+        .itinerary-panel { background: #fff; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: sticky; top: 20px; height: fit-content; max-height: 90vh; overflow-y: auto; }
+        
+        .itinerary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .itinerary-header h2 { margin: 0; font-size: 20px; color: #2c3e50; }
+        .header-actions { display: flex; gap: 8px; }
+        
+        .btn-print { background: #2ecc71; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-print:hover { background: #27ae60; }
+        .btn-clear-all { background: #ffeaea; color: #e74c3c; border: 1px solid #ffcccc; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-clear-all:hover { background: #e74c3c; color: #fff; border-color: #e74c3c; }
+
+        #empty-state { text-align: center; color: #999; font-size: 14px; padding: 40px 0; font-style: italic; }
+
+        .timeline { position: relative; padding-left: 20px; border-left: 2px dashed #e0e0e0; margin-left: 10px; list-style: none; padding-right: 0; margin-bottom: 0;}
+        .timeline-item { position: relative; margin-bottom: 20px; padding: 15px; background: #f9fbfb; border-radius: 8px; border: 1px solid #edf2f2; transition: transform 0.2s, box-shadow 0.2s; }
+        .timeline-item::before { content: ''; position: absolute; left: -27px; top: 20px; width: 10px; height: 10px; background: #f39c12; border-radius: 50%; border: 3px solid #fff; }
+        .timeline-item.dragging { opacity: 0.5; background: #fff8e1; border: 1px dashed #f39c12; transform: scale(1.02); }
+        .timeline-item.drag-over { border-top: 3px solid #f39c12; padding-top: 25px; }
+
+        .item-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .item-left { display: flex; align-items: flex-start; gap: 12px; }
+        .drag-handle { cursor: grab; color: #bdc3c7; font-size: 18px; display: flex; flex-direction: column; gap: 3px; padding-right: 5px; margin-top: 3px;}
+        .drag-handle:active { cursor: grabbing; }
+        .drag-handle span { display: block; width: 15px; height: 2px; background-color: #bdc3c7; border-radius: 2px; }
+        
+        .item-name { font-weight: 700; color: #2c3e50; font-size: 15px; margin: 0 0 5px 0; text-decoration: none; transition: 0.2s;}
+        .item-name:hover { color: #f39c12; text-decoration: underline; }
+
+        .btn-remove { background: #ffeaea; color: #e74c3c; border: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; transition: 0.2s; flex-shrink: 0; }
+        .btn-remove:hover { background: #e74c3c; color: #fff; }
+
+        .sequence-suggestion { margin-top: 12px; font-size: 13px; color: #d35400; background: #fff5e6; padding: 10px 12px; border-radius: 6px; border-left: 3px solid #f39c12; line-height: 1.5; }
+
+        @media (max-width: 900px) { .builder-container { grid-template-columns: 1fr; } .itinerary-panel { position: relative; top: 0; max-height: none; } }
+        @media print { 
+            .back-nav, .hero-section, .places-panel, .header-actions, .btn-remove, .drag-handle, #suggestions-box { display: none !important; } 
+            body { background: #fff; } .builder-container { display: block; margin: 0; padding: 0; } .itinerary-panel { box-shadow: none; border: none; padding: 0; } 
+            .sequence-suggestion { border: 1px solid #ddd; background: #fff; color: #333; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="back-nav">
+        <a href="index.html" class="btn-back">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            Quay lại Bản đồ
+        </a>
+    </div>
+
+    <div class="hero-section">
+        <div>
+            <h1 class="hero-title">Tự Tạo Lịch Trình</h1>
+            <p class="hero-subtitle">Bấm "+" để thêm, và kéo thả ☰ để sắp xếp thứ tự hành trình của bạn</p>
+        </div>
+    </div>
+
+    <div class="builder-container">
+        <div class="places-panel">
+            
+            <div class="auto-generate-header">
+                <div>
+                    <h3>Lười suy nghĩ?</h3>
+                    <p>Để hệ thống thiết kế lịch trình cá nhân hóa cho bạn.</p>
+                </div>
+                <button class="btn-magic" onclick="openAutoModal()">✨ LÊN LỊCH TỰ ĐỘNG</button>
+            </div>
+
+            <div class="section-header">
+                <span>Khám Phá Điểm Đến</span>
+            </div>
+            <div class="places-grid" id="places-grid"></div>
+        </div>
+
+        <div class="itinerary-panel">
+            <div class="itinerary-header">
+                <h2>Lịch Trình Của Tôi</h2>
+                <div class="header-actions">
+                    <button class="btn-print" onclick="window.print()">🖨️ In PDF</button>
+                    <button class="btn-clear-all" onclick="clearAllItinerary()">🗑️ Xóa mới</button>
+                </div>
+            </div>
+            <div id="empty-state">Bạn chưa thêm địa điểm nào.<br>Hãy chọn các điểm từ Sa bàn hoặc thêm ở đây nhé!</div>
+            
+            <ul class="timeline" id="itinerary-list"></ul>
+
+            <div id="suggestions-box" style="margin-top: 25px; display: none; border-top: 2px dashed #eee; padding-top: 20px;">
+                <h3 style="font-size: 16px; color: #2c3e50; margin-top: 0; margin-bottom: 15px;">💡 Dịch vụ quanh lộ trình:</h3>
+
+                <div id="food-suggestions" style="margin-bottom: 15px;">
+                    <strong style="font-size: 13px; color: #e67e22;">🍴 Quán ăn gần bạn:</strong>
+                    <div id="food-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;"></div>
+                </div>
+                <div id="cafe-suggestions" style="margin-bottom: 15px;">
+                    <strong style="font-size: 13px; color: #8e44ad;">☕ Quán Cafe gần bạn:</strong>
+                    <div id="cafe-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;"></div>
+                </div>
+                <div id="stay-suggestions">
+                    <strong style="font-size: 13px; color: #2980b9;">🏨 Điểm lưu trú lân cận:</strong>
+                    <div id="stay-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="auto-modal-overlay" id="autoModal">
+        <div class="auto-form-content">
+            <button class="close-auto-modal" onclick="closeAutoModal()">✕</button>
+            <h2>✨ Thiết Kế Lịch Trình</h2>
+            
+            <div class="form-group">
+                <label>1. Quỹ thời gian của bạn?</label>
+                <select id="auto-time">
+                    <option value="1day">Trong ngày (Sáng đi chiều về)</option>
+                    <option value="2days">Qua đêm (2 Ngày 1 Đêm)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>2. Gu trải nghiệm bạn thích nhất?</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-label"><input type="checkbox" value="zone1" class="theme-cb" checked> Zone 1: Tâm linh & Văn hóa địa phương</label>
+                    <label class="checkbox-label"><input type="checkbox" value="zone2" class="theme-cb" checked> Zone 2: Thiên nhiên & Dã ngoại</label>
+                    <label class="checkbox-label"><input type="checkbox" value="zone3" class="theme-cb"> Zone 3: Sinh thái & Lịch sử</label>
+                    <label class="checkbox-label"><input type="checkbox" value="zone4" class="theme-cb"> Zone 4: Giải trí tổng hợp</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>3. Đặc điểm nhóm của bạn?</label>
+                <select id="auto-group">
+                    <option value="young">Phượt / Cặp đôi (Thích vận động, đi bộ nhiều)</option>
+                    <option value="family">Gia đình (Có người lớn tuổi, hạn chế leo trèo)</option>
+                    <option value="relax">Nghỉ dưỡng (Ưu tiên các điểm xe đỗ tận nơi)</option>
+                </select>
+            </div>
+
+            <button class="btn-submit-auto" onclick="generateAutoItinerary()">TẠO LỊCH TRÌNH NGAY</button>
+        </div>
+    </div>
+
+    <script>
+        function openAutoModal() { document.getElementById('autoModal').classList.add('show'); }
+        function closeAutoModal() { document.getElementById('autoModal').classList.remove('show'); }
+
+        // BẢNG DỮ LIỆU ĐÃ LOẠI BỎ ĐỊA ĐẠO AN THỚI VÀ CẬP NHẬT TỌA ĐỘ CHÍNH XÁC
+        const database = [
+            { id: 'nuibaden', lat: 11.36204, lng: 106.1680, name: 'Núi Bà Đen', cat: 'Tâm linh & Vận động', link: 'nuibaden.html', desc: 'Chinh phục "Nóc nhà Nam Bộ" và viếng cảnh chùa linh thiêng.', theme: ['zone1'], diff: 'hard', activities: { morning: "Săn mây sương sớm, viếng Chùa Bà rèn luyện thể lực.", noon: "Nghỉ ngơi tránh nắng, thưởng thức buffet trên đỉnh núi.", afternoon: "Check-in cột mốc 986m, ngắm hoàng hôn Nam Bộ rực rỡ.", evening: "Chiêm ngưỡng hệ thống đèn LED vạn ngọn đăng huyền ảo trên đỉnh." } },
+            { id: 'toathanh', lat: 11.30497, lng: 106.1328, name: 'Tòa Thánh Tây Ninh', cat: 'Kiến trúc & Tôn giáo', link: 'toathanh.html', desc: 'Đại kiến trúc tôn giáo đồ sộ, độc đáo bậc nhất Nam Bộ.', theme: ['zone1'], diff: 'easy', activities: { morning: "Tham quan kiến trúc độc đáo, xem lễ cúng thời Mão.", noon: "Tản bộ và nghỉ ngơi dưới bóng cây cổ thụ mát rượi trong Nội ô.", afternoon: "Chụp ảnh check-in cực đẹp với kiến trúc dưới nắng chiều.", evening: "Dạo quanh khuôn viên khi Tòa Thánh lên đèn lung linh." } },
+            { id: 'cholonghoa', lat: 11.28395, lng: 106.1296, name: 'Chợ Long Hoa', cat: 'Văn hóa địa phương', link: 'cholonghoa.html', desc: 'Trải nghiệm mua sắm đặc sản với kiến trúc Bát Quái độc đáo.', theme: ['zone1'], diff: 'easy', activities: { morning: "Ăn sáng bánh canh nóng hổi, mua sắm đồ tươi sống.", noon: "Thưởng thức các món chay giả mặn đặc sắc rộn ràng.", afternoon: "Mua sắm đặc sản muối tôm, bánh tráng mang về làm quà.", evening: "Thưởng thức ẩm thực ăn vặt đường phố nhộn nhịp quanh chợ." } },
+            { id: 'goken', lat: 11.27605, lng: 106.1091, name: 'Chùa Gò Kén', cat: 'Tâm linh', link: 'chuagoken.html', desc: 'Cổ tự trăm tuổi thanh tịnh ven sông.', theme: ['zone1'], diff: 'easy', activities: { morning: "Lễ Phật buổi sáng, vãn cảnh chùa thanh tịnh bình yên.", noon: "Tĩnh tâm, nghỉ ngơi lấy lại năng lượng dưới hiên chùa.", afternoon: "Ngắm tượng Phật Quan Âm khổng lồ đón nắng chiều.", evening: "Không gian tĩnh lặng, thư thái dạo bước dưới ánh đèn chánh điện." } },
+            { id: 'thapcobinhthanh', lat: 11.01842, lng: 106.2198, name: 'Tháp Cổ Bình Thạnh', cat: 'Khảo cổ & Lịch sử', link: 'thapco.html', desc: 'Kiệt tác gạch nung không vữa ngàn năm ven sông Vàm Cỏ Đông.', theme: ['zone1', 'zone3'], diff: 'medium', activities: { morning: "Chụp ảnh kiến trúc gạch nung rực rỡ dưới nắng mai.", noon: "Tìm khu vực bóng râm nghỉ ngơi, ăn nhẹ.", afternoon: "Đón hoàng hôn buông xuống bên bờ sông Vàm Cỏ hoài cổ.", evening: "Khu di tích đóng cửa sớm, bạn nên di chuyển về trung tâm." } },
+            { id: 'thapcochopmat', lat: 11.46370, lng: 106.0110, name: 'Tháp Cổ Chóp Mạt', cat: 'Khảo cổ & Lịch sử', link: 'thapco.html', desc: 'Đài quan sát ngàn năm tuổi trầm mặc giữa cánh đồng Tân Biên.', theme: ['zone3'], diff: 'medium', activities: { morning: "Ngắm tháp cổ sừng sững giữa cánh đồng lúa xanh mướt.", noon: "Nghỉ ngơi tại các khu vực lân cận thị trấn Tân Biên.", afternoon: "Chụp bộ ảnh mang phong cách cổ điển, trầm mặc.", evening: "Khu vực xa trung tâm, gợi ý kết thúc sớm lịch trình." } },
+            { id: 'hodautieng', lat: 11.32454, lng: 106.3269, name: 'Hồ Dầu Tiếng', cat: 'Dã ngoại & Cắm trại', link: 'hodautieng.html', desc: 'Bờ hồ mênh mông, lý tưởng để Glamping và chèo SUP.', theme: ['zone2'], diff: 'easy', activities: { morning: "Đón bình minh rực rỡ, chèo SUP nhẹ nhàng trên mặt hồ.", noon: "Tìm bóng râm quanh hồ, dựng lều tạm và chuẩn bị đồ nướng.", afternoon: "Dựng lều chính, ngắm cảnh hoàng hôn buông xuống mặt nước.", evening: "Đốt lửa trại, nướng BBQ và ngắm bầu trời đầy sao." } },
+            { id: 'mathienlanh', lat: 11.39439, lng: 106.1498, name: 'Ma Thiên Lãnh', cat: 'Khám phá thiên nhiên', link: 'mathienlanh.html', desc: 'Tuyệt Tình Cốc hoang sơ với hồ đá xanh ngọc bích ma mị.', theme: ['zone2'], diff: 'hard', activities: { morning: "Trekking nhẹ nhàng qua thung lũng sương mù mờ ảo.", noon: "Nghỉ chân dưới tán cây, tổ chức ăn nhẹ giữa rừng.", afternoon: "Tắm suối róc rách, chụp hình tại hồ đá xanh ngọc bích.", evening: "Rời khỏi rừng sớm để đảm bảo an toàn, di chuyển về nghỉ ngơi." } },
+            { id: 'suoitruc', lat: 11.33323, lng: 106.3589, name: 'Suối Trúc', cat: 'Khám phá thiên nhiên', link: 'suoitruc.html', desc: 'Trekking nhẹ nhàng và tắm suối dưới những rặng trúc xanh.', theme: ['zone2'], diff: 'medium', activities: { morning: "Lội suối mát lạnh, băng qua những rặng trúc xanh rì.", noon: "Tổ chức Picnic, ăn trưa trên các phiến đá phẳng rộng lớn.", afternoon: "Tắm suối giải nhiệt buổi chiều cực kỳ sảng khoái.", evening: "Rời khỏi khu vực suối trước khi trời tối để đảm bảo an toàn." } },
+            { id: 'logoxamat', lat: 11.59284, lng: 105.9902, name: 'Vườn QG Lò Gò Xa Mát', cat: 'Sinh thái', link: 'logoxamat.html', desc: 'Trekking và đạp xe xuyên rừng, hít thở "lá phổi xanh".', theme: ['zone3'], diff: 'hard', activities: { morning: "Đạp xe hoặc Trekking xuyên rừng, ngắm các loài chim muông.", noon: "Dừng chân tại tháp canh, ăn trưa dã ngoại giữa thiên nhiên.", afternoon: "Đi thuyền tham quan trên dòng sông Vàm Cỏ Đông ranh giới.", evening: "Nghỉ ngơi tại nhà khách Vườn Quốc Gia (nếu có lưu trú)." } },
+            { id: 'cancudia', lat: 11.73310, lng: 106.0772, name: 'Căn cứ Trung Ương Cục', cat: 'Di tích Lịch sử', link: 'trunguongcuc.html', desc: 'Thủ đô kháng chiến giữa đại ngàn với giao thông hào kỳ vĩ.', theme: ['zone3'], diff: 'medium', activities: { morning: "Nghe thuyết minh lịch sử, khám phá hệ thống giao thông hào.", noon: "Nghỉ ngơi và ăn trưa tại khu vực căng tin di tích.", afternoon: "Tham quan nhà trưng bày kỷ vật và chụp ảnh lưu niệm.", evening: "Kết thúc chuyến đi về nguồn, di chuyển về trung tâm thành phố." } },
+            { id: 'longdienson', lat: 11.36051, lng: 106.1220, name: 'KDL Long Điền Sơn', cat: 'Giải trí', link: 'longdienson.html', desc: 'Công viên nước và khu vui chơi phức hợp cho gia đình.', theme: ['zone4'], diff: 'easy', activities: { morning: "Tham gia các trò chơi vận động ngoài trời đầy năng lượng.", noon: "Nghỉ ngơi trong chòi lá quanh hồ, thư giãn câu cá.", afternoon: "Vui chơi giải nhiệt sảng khoái tại khu vực Công viên nước.", evening: "Ăn tối ven hồ, thưởng thức ca nhạc giải trí." } }
+        ];
+
+        const serviceDatabase = { food: [], stay: [], cafe: [] };
+
+        async function loadServicesFromCSV() {
+            try {
+                const response = await fetch('services.csv');
+                if (!response.ok) throw new Error("Không tìm thấy");
+                const csvText = await response.text();
+                
+                serviceDatabase.food = []; serviceDatabase.stay = []; serviceDatabase.cafe = [];
+                const rows = csvText.split('\n');
+                const delimiter = csvText.includes(';') ? ';' : ',';
+                const regex = new RegExp(`${delimiter}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
+
+                for(let i = 1; i < rows.length; i++) { 
+                    if(!rows[i].trim()) continue;
+                    const cols = rows[i].split(regex).map(x => x.replace(/^"|"$/g, '').trim());
+                    
+                    if(cols.length >= 2) {
+                        let name = cols[0]; let link = cols[1] || ""; let type = (cols[2] || "").toLowerCase();
+                        let lat = parseFloat(cols[3]) || null; let lng = parseFloat(cols[4]) || null;
+
+                        if (link.toLowerCase().includes('trú')) {
+                            type = 'trú'; link = link.replace(/trú/i, '').trim();
+                            lat = parseFloat(cols[2]) || null; lng = parseFloat(cols[3]) || null;
+                        } else if (link.toLowerCase().includes('thực') || link.toLowerCase().includes('ăn')) {
+                            type = 'thực'; link = link.replace(/thực|ăn/i, '').trim();
+                            lat = parseFloat(cols[2]) || null; lng = parseFloat(cols[3]) || null;
+                        }
+
+                        if (!type) {
+                            const nameLower = name.toLowerCase();
+                            if (nameLower.includes('khách sạn') || nameLower.includes('homestay') || nameLower.includes('hotel') || nameLower.includes('camping') || nameLower.includes('villa')) type = 'trú';
+                            else if (nameLower.includes('quán') || nameLower.includes('bò') || nameLower.includes('cơm') || nameLower.includes('phở') || nameLower.includes('hủ tiếu') || nameLower.includes('nhà hàng') || nameLower.includes('chè')) type = 'thực';
+                            else type = 'cafe';
+                        }
+                        const item = { name, link, lat, lng };
+
+                        if(type.includes('trú')) serviceDatabase.stay.push(item);
+                        else if(type.includes('thực') || type.includes('ăn')) serviceDatabase.food.push(item);
+                        else serviceDatabase.cafe.push(item);
+                    }
+                }
+                updateSuggestions();
+            } catch (error) {
+                console.log("Thiếu file services.csv.");
+            }
+        }
+
+        let myItinerary = JSON.parse(localStorage.getItem('myTNDIitinerary')) || [];
+        let dragStartIndex = -1;
+        let userCoords = null;
+
+        let locationTimeout = setTimeout(() => {
+            if (!userCoords) {
+                updateSuggestions();
+            }
+        }, 5000);
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                clearTimeout(locationTimeout);
+                userCoords = { lat: position.coords.latitude, lng: position.coords.longitude };
+                updateSuggestions(); 
+            }, (error) => { 
+                clearTimeout(locationTimeout);
+                updateSuggestions();
+            }, { timeout: 5000 });
+        }
+
+        function calculateStraightDistance(lat1, lon1, lat2, lng2) {
+            const R = 6371; 
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lng2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))) * 1.3; 
+        }
+
+        function generateAutoItinerary() {
+            const time = document.getElementById('auto-time').value;
+            const group = document.getElementById('auto-group').value;
+            const themeCheckboxes = document.querySelectorAll('.theme-cb:checked');
+            const selectedThemes = Array.from(themeCheckboxes).map(cb => cb.value);
+
+            if(selectedThemes.length === 0) { alert("Vui lòng chọn ít nhất 1 gu trải nghiệm!"); return; }
+            myItinerary = [];
+            
+            let filteredPlaces = database.filter(p => p.theme.some(t => selectedThemes.includes(t)));
+            if(group === 'family' || group === 'relax') filteredPlaces = filteredPlaces.filter(p => p.diff !== 'hard');
+            if(filteredPlaces.length === 0) {
+                alert("Hệ thống sẽ bốc ngẫu nhiên các điểm phù hợp.");
+                filteredPlaces = database.filter(p => group === 'family' || group === 'relax' ? p.diff !== 'hard' : true);
+            }
+
+            const maxPlaces = time === '1day' ? 3 : 5;
+            for (let i = filteredPlaces.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [filteredPlaces[i], filteredPlaces[j]] = [filteredPlaces[j], filteredPlaces[i]];
+            }
+            myItinerary = filteredPlaces.slice(0, maxPlaces);
+            
+            syncLocalStorage(); renderItinerary(); renderPlaces(); closeAutoModal();
+            if(window.innerWidth <= 900) { document.querySelector('.itinerary-panel').scrollIntoView({ behavior: 'smooth' }); }
+        }
+
+        function getSequenceBasedSuggestion(activitiesObj, index) {
+            if (!activitiesObj) return `<strong>💡 Gợi ý:</strong> Tận hưởng chuyến đi!`;
+            let period = 'morning'; let timeLabel = 'Sáng';
+            if (index === 0) { period = 'morning'; timeLabel = 'Sáng'; } 
+            else if (index === 1) { period = 'noon'; timeLabel = 'Trưa'; } 
+            else if (index === 2) { period = 'afternoon'; timeLabel = 'Chiều'; } 
+            else { period = 'evening'; timeLabel = 'Tối'; }
+            return `<strong>💡 Gợi ý buổi ${timeLabel}:</strong> ${activitiesObj[period]}`;
+        }
+
+        function syncLocalStorage() { localStorage.setItem('myTNDIitinerary', JSON.stringify(myItinerary)); }
+        function isPlaceInItinerary(id) { return myItinerary.some(item => item.id === id); }
+
+        function renderPlaces() {
+            const grid = document.getElementById('places-grid');
+            grid.innerHTML = '';
+            database.forEach((place, index) => {
+                const isAdded = isPlaceInItinerary(place.id);
+                const btnClass = isAdded ? "btn-add added" : "btn-add";
+                const btnText = isAdded ? "Đã Thêm ✓" : "Thêm vào";
+
+                const card = document.createElement('div');
+                card.className = 'place-card';
+                card.innerHTML = `
+                    <div>
+                        <span class="place-cat">${place.cat}</span>
+                        <a href="${place.link}" target="_blank" class="place-name" style="display:block;">${place.name}</a>
+                        <p class="place-desc">${place.desc}</p>
+                    </div>
+                    <button class="${btnClass}" onclick="togglePlace(${index}, this)">${btnText}</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function togglePlace(index, btnElement) {
+            const place = database[index];
+            if(isPlaceInItinerary(place.id)) {
+                myItinerary = myItinerary.filter(item => item.id !== place.id);
+                btnElement.className = "btn-add";
+                btnElement.innerHTML = `<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Thêm vào`;
+            } else {
+                myItinerary.push(place);
+                btnElement.className = "btn-add added";
+                btnElement.innerHTML = `Đã Thêm ✓`;
+                if(window.innerWidth <= 900) { document.querySelector('.itinerary-panel').scrollIntoView({ behavior: 'smooth' }); }
+            }
+            syncLocalStorage(); renderItinerary();
+        }
+
+        function renderItinerary() {
+            const list = document.getElementById('itinerary-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            list.innerHTML = '';
+            if (myItinerary.length === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+                myItinerary.forEach((savedItem, index) => {
+                    const item = database.find(p => p.id === savedItem.id) || savedItem;
+                    const li = document.createElement('li');
+                    li.className = 'timeline-item';
+                    li.setAttribute('draggable', 'true');
+                    li.setAttribute('data-index', index);
+                    
+                    li.addEventListener('dragstart', handleDragStart);
+                    li.addEventListener('dragover', handleDragOver);
+                    li.addEventListener('drop', handleDrop);
+                    li.addEventListener('dragenter', handleDragEnter);
+                    li.addEventListener('dragleave', handleDragLeave);
+                    li.addEventListener('dragend', handleDragEnd);
+
+                    li.innerHTML = `
+                        <div class="item-header">
+                            <div class="item-left" style="width: 100%;">
+                                <div class="drag-handle" title="Kéo để di chuyển">
+                                    <span></span><span></span><span></span>
+                                </div>
+                                <div style="width: calc(100% - 30px);">
+                                    <div style="display:flex; justify-content: space-between; align-items: flex-start;">
+                                        <a href="${item.link}" target="_blank" class="item-name" style="display:block;">${index + 1}. ${item.name}</a>
+                                        <button class="btn-remove" onclick="removeFromList(${index})" title="Xóa">✕</button>
+                                    </div>
+                                    <div style="font-size: 12px; color: #7f8c8d;">${item.cat}</div>
+                                    <div class="sequence-suggestion">
+                                        ${getSequenceBasedSuggestion(item.activities, index)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    list.appendChild(li);
+                });
+            }
+            updateSuggestions();
+        }
+
+        function updateSuggestions() {
+            const suggestionBox = document.getElementById('suggestions-box');
+            const foodList = document.getElementById('food-list');
+            const cafeList = document.getElementById('cafe-list');
+            const stayList = document.getElementById('stay-list');
+            
+            if (myItinerary.length === 0) { suggestionBox.style.display = 'none'; return; }
+            suggestionBox.style.display = 'block';
+
+            if (serviceDatabase.food.length === 0 && serviceDatabase.cafe.length === 0 && serviceDatabase.stay.length === 0) {
+                foodList.innerHTML = '<span style="color:#e74c3c; font-size: 13px;">⚠️ Hệ thống chưa đọc được file services.csv. Vui lòng kiểm tra lại Live Server.</span>';
+                return;
+            }
+
+            let htmlFood = '', htmlCafe = '', htmlStay = '';
+
+            let foods = [...serviceDatabase.food];
+            if (userCoords) {
+                foods.forEach(f => {
+                    if (f.lat && f.lng) {
+                        f.distance = calculateStraightDistance(userCoords.lat, userCoords.lng, f.lat, f.lng);
+                    }
+                });
+                foods.sort((a, b) => (a.distance || 9999) - (b.distance || 9999));
+            }
+            foods.slice(0, 6).forEach(f => {
+                const distText = f.distance && f.distance < 9999 ? ` (Cách bạn ~${f.distance.toFixed(1)} km)` : "";
+                htmlFood += `<a href="${f.link}" target="_blank" style="font-size: 12px; padding: 6px 12px; background: #fff3e0; color: #d35400; border-radius: 6px; text-decoration: none; border: 1px solid #ffcc80; transition: 0.2s; display: inline-block; margin-right: 5px; margin-bottom: 5px;" onmouseover="this.style.background='#ffe0b2'" onmouseout="this.style.background='#fff3e0'">${f.name}${distText}</a>`;
+            });
+
+            let cafes = [...serviceDatabase.cafe];
+            if (userCoords) {
+                cafes.forEach(c => {
+                    if (c.lat && c.lng) {
+                        c.distance = calculateStraightDistance(userCoords.lat, userCoords.lng, c.lat, c.lng);
+                    }
+                });
+                cafes.sort((a, b) => (a.distance || 9999) - (b.distance || 9999));
+            }
+            cafes.slice(0, 5).forEach(c => {
+                const distText = c.distance && c.distance < 9999 ? ` (Cách bạn ~${c.distance.toFixed(1)} km)` : "";
+                htmlCafe += `<a href="${c.link}" target="_blank" style="font-size: 12px; padding: 6px 12px; background: #fdf5e6; color: #8e44ad; border-radius: 6px; text-decoration: none; border: 1px solid #d2b4de; transition: 0.2s; display: inline-block; margin-right: 5px; margin-bottom: 5px;" onmouseover="this.style.background='#ebdef0'" onmouseout="this.style.background='#fdf5e6'">${c.name}${distText}</a>`;
+            });
+            
+            let stays = [...serviceDatabase.stay];
+            if (userCoords) {
+                stays.forEach(s => {
+                    if (s.lat && s.lng) {
+                        s.distance = calculateStraightDistance(userCoords.lat, userCoords.lng, s.lat, s.lng);
+                    }
+                });
+                stays.sort((a, b) => (a.distance || 9999) - (b.distance || 9999));
+            }
+            stays.slice(0, 4).forEach(s => {
+                const distText = s.distance && s.distance < 9999 ? ` (Cách bạn ~${s.distance.toFixed(1)} km)` : "";
+                htmlStay += `<a href="${s.link}" target="_blank" style="font-size: 12px; padding: 6px 12px; background: #e3f2fd; color: #1976d2; border-radius: 6px; text-decoration: none; border: 1px solid #bbdefb; transition: 0.2s; display: inline-block; margin-right: 5px; margin-bottom: 5px;" onmouseover="this.style.background='#bbdefb'" onmouseout="this.style.background='#e3f2fd'">${s.name}${distText}</a>`;
+            });
+            
+            foodList.innerHTML = htmlFood;
+            cafeList.innerHTML = htmlCafe;
+            stayList.innerHTML = htmlStay;
+            document.getElementById('cafe-suggestions').style.display = htmlCafe ? 'block' : 'none';
+        }
+
+        function removeFromList(index) { myItinerary.splice(index, 1); syncLocalStorage(); renderItinerary(); renderPlaces(); }
+        function clearAllItinerary() { if(confirm("Bạn có chắc chắn muốn xóa làm mới toàn bộ lịch trình không?")) { myItinerary = []; syncLocalStorage(); renderItinerary(); renderPlaces(); } }
+
+        /* --- KÉO THẢ --- */
+        function handleDragStart(e) { dragStartIndex = +this.getAttribute('data-index'); e.dataTransfer.effectAllowed = 'move'; this.classList.add('dragging'); }
+        function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false; }
+        function handleDragEnter(e) { e.preventDefault(); this.classList.add('drag-over'); }
+        function handleDragLeave(e) { this.classList.remove('drag-over'); }
+        function handleDrop(e) {
+            e.stopPropagation(); e.preventDefault(); this.classList.remove('drag-over');
+            const dragEndIndex = +this.getAttribute('data-index');
+            if (dragStartIndex !== dragEndIndex && dragStartIndex !== -1) {
+                const itemToMove = myItinerary.splice(dragStartIndex, 1)[0];
+                myItinerary.splice(dragEndIndex, 0, itemToMove);
+                syncLocalStorage(); renderItinerary();
+            }
+            return false;
+        }
+        function handleDragEnd(e) { this.classList.remove('dragging'); document.querySelectorAll('.timeline-item').forEach(item => item.classList.remove('drag-over')); dragStartIndex = -1; }
+
+        // --- KHỞI CHẠY HỆ THỐNG ---
+        (async function initSystem() {
+            await loadServicesFromCSV();
+            renderPlaces();
+            renderItinerary();
+        })();
+
+    </script>
+</body>
+</html>
